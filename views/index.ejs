@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Weather API</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-200 to-blue-500 text-gray-800 font-sans p-4">
+    <div class="max-w-5xl mx-auto bg-white/20 backdrop-blur-md rounded-xl p-6 shadow-lg">
+        
+        <!-- Form search -->
+        <form action="/weather" method="post" class="flex gap-4 mb-6">
+            <input type="text" name="city" placeholder="Enter City Name" class="flex-1 px-4 py-2 rounded-lg shadow bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Search</button>
+        </form>
+
+        <!-- Cuaca saat ini -->
+        <% if (locals.content) { %>
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold"><%= content.name %></h1>
+                <p class="text-lg capitalize"><%= content.weather[0].description %></p>
+                <p class="text-5xl font-bold"><%= content.main.temp %>°C</p>
+            </div>
+            <div class="text-sm text-gray-700">
+                <p>Lat: <%= content.coord.lat %>, Lon: <%= content.coord.lon %></p>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Air pollution -->
+        <% if (locals.airPollution) { %>
+        <div class="bg-white/60 p-4 rounded-lg mb-6">
+            <p><strong>Air Quality:</strong> AQI <%= airPollution.list[0].main.aqi %></p>
+            <p class="text-xs text-gray-500">Updated: <%= new Date(airPollution.list[0].dt * 1000).toLocaleString() %></p>
+        </div>
+        <% } %>
+
+        <!-- Forecast -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-4">5-Day Forecast</h2>
+            <% if (locals.groupedForecast) { %>
+                <div class="space-y-6">
+                <% Object.keys(groupedForecast).forEach(date => { %>
+                    <div>
+                    <h3 class="text-lg font-bold mb-2"><%= date %></h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <% groupedForecast[date].forEach(entry => { %>
+                        <div class="bg-white/80 rounded-lg p-4 text-sm shadow-md">
+                            <p class="font-semibold"><%= entry.dt_txt.slice(11, 16) %></p>
+                            <p><%= entry.main.temp %>°C</p>
+                            <p class="capitalize"><%= entry.weather[0].description %></p>
+                            <p class="text-xs text-gray-500">Humidity: <%= entry.main.humidity %>%</p>
+                        </div>
+                        <% }) %>
+                    </div>
+                    </div>
+                <% }) %>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (locals.error) { %>
+        <div class="mt-4 p-4 bg-red-100 text-red-700 rounded">
+            <%= error.message %>
+        </div>
+        <% } %>
+
+    </div>
+</body>
+</html>
